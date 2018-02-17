@@ -1,18 +1,17 @@
-/*
- * Project heprotechboard
- * Description:
- * Author:
- * Date:
- */
-
-// setup() runs once, when the device is first turned on.
+#include "cellular_hal.h"
+#include "proximity.h"
+#include "stdio.h"
+// Set the TELUS APN
+  STARTUP(cellular_credentials_set("isp.telus.com", "", "", NULL));
+  Proximity_Sensor *prox;
 void setup() {
-  // Put initialization like pinMode and begin functions here.
-
+  // Set the keep-alive value for TELUS SIM card
+  Particle.keepAlive(30);
+  prox = new Proximity_Sensor(B3);
 }
-
-// loop() runs over and over again, as quickly as it can execute.
-void loop() {
-  // The core of your code will likely live here.
-
+void loop () {
+  char digi[30] = {0 };
+  snprintf(digi, 30, "%d", prox->ReadDigital());
+  Particle.publish("beamStatus",digi,60,PRIVATE);
+  delay(1000);
 }
