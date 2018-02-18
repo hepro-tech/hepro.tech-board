@@ -84,7 +84,7 @@ void ToggleArmed(const char *event, const char *data)
         ArmWarning(false);
         securityLevel = MOTION;
     }
-    else
+    else if(strcmp(data, "DISARM") == 0)
     {
         ArmMotion(false);
         ArmProximity(false);
