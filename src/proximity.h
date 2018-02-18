@@ -1,14 +1,17 @@
 #ifndef PROXIMITY_HH
 #define PROXIMITY_HH
 
-#define PROX_SENS_STARTUP_DELAY 60000
 class Proximity_Sensor {
     private:
         int pin;
+        static const int MAX_DIST = 550;
+        static const int MIN_DIST = 100;
     public:
     Proximity_Sensor(int pin);
 
-    int ReadDigital();
+    float Read();
+
+    int GetDistance(float dist);
 
 };
 

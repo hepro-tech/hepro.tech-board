@@ -6,7 +6,12 @@ Proximity_Sensor::Proximity_Sensor(int pin)
     pinMode(pin, INPUT);
 }
 
-int Proximity_Sensor::ReadDigital()
+float Proximity_Sensor::Read()
 {
-    return digitalRead(this->pin);
+    return analogRead(this->pin)/1024.0;
+}
+
+int Proximity_Sensor::GetDistance(float dist)
+{
+    return (int)(dist * (MAX_DIST - MIN_DIST) + MIN_DIST);
 }
