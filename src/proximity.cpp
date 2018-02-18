@@ -8,7 +8,7 @@ Proximity_Sensor::Proximity_Sensor(int pin)
 
 float Proximity_Sensor::Read()
 {
-    return analogRead(this->pin)/1024.0;
+    return analogRead(this->pin)/4095.0;
 }
 
 int Proximity_Sensor::GetDistance(float dist)
