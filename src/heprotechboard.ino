@@ -61,18 +61,34 @@ void ArmProximity(bool arm)
     measureProximity = false;
   }
 }
+void ArmWarning(bool arm)
+{
+  if(arm)
+  {
+    digitalWrite(B1, HIGH);
+    digitalWrite(B2, HIGH);
+  }
+  else
+  {
+    digitalWrite(B1, LOW);
+    digitalWrite(B2, LOW);
+  }
+}
 
 void ToggleArmed(const char *event, const char *data)
 {
     if(strcmp(data, "ARM") == 0)
     {
         ArmMotion(true);
+        ArmProximity(false);
+        ArmWarning(false);
         securityLevel = MOTION;
     }
     else
     {
         ArmMotion(false);
         ArmProximity(false);
+        ArmWarning(false);
         securityLevel = DISARMED;
     }
 }
@@ -94,6 +110,7 @@ void ChangeSeverity(const char * event, const char * data)
           break;
         case PROXIMITY:
           securityLevel = WARNING;
+          ArmWarning(true);
           break;
         case WARNING:
           break;
@@ -113,9 +130,15 @@ void ChangeSeverity(const char * event, const char * data)
           break;
         case WARNING:
           securityLevel = PROXIMITY;
+          ArmWarning(false);
           break;
       }
     }
+}
+
+int GetSecurity(String extra)
+{
+  return securityLevel;
 }
 
 void setup() {
@@ -126,13 +149,15 @@ void setup() {
     Particle.keepAlive(30);
     motion = new Motion_Sensor(B3);
     prox = new Proximity_Sensor(B4);
-    pinMode(B0, OUTPUT);
+    pinMode(B1, OUTPUT);
+    pinMode(B2, OUTPUT);
 
     delay(MOTION_SENS_STARTUP_DELAY);
     Particle.publish("status","Start sensing",60,PRIVATE);
 
     Particle.subscribe("ARM", ToggleArmed);
     Particle.subscribe("SECURITY", ChangeSeverity);
+    Particle.function("security_lvl", GetSecurity);
 }
 
 void loop () {
@@ -144,12 +169,9 @@ void loop () {
     
     if(measureProximity)
     {
-        digitalWrite(B0, HIGH);
         char publishMessage[30] = {0};
         snprintf(publishMessage, 30, "%d", centimetres);
         Particle.publish("ProximitySensing", publishMessage, 60, PRIVATE);
     }
-    delay(100);
-    digitalWrite(B0, LOW);
-    delay(100);
+    delay(200);
 }
