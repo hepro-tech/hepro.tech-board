@@ -66,5 +66,7 @@ void loop () {
     char publishMessage[30] = {0};
     snprintf(publishMessage, 30, "%d", centimetres);
     Particle.publish("MotionTracking", publishMessage, 60, PRIVATE);
+    snprintf(publishMessage, 30, "%f", prox->Read());
+    Particle.publish("MotionTracking", publishMessage, 60, PRIVATE);
     delay(500);
 }
