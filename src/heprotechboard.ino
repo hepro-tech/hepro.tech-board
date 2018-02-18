@@ -16,12 +16,12 @@ Proximity_Sensor *prox;
 
 Thread * proximity_thread;
 
-volatile bool spaghetTouched = false;
+volatile bool motionDetected = false;
 volatile bool measureProximity = false;
-int centimetres = 550;
+volatile int centimetres = 550;
 
 void  BEAM_ISR() {
-    spaghetTouched = true;
+    motionDetected = true;
 }
 
 os_thread_return_t MeasureProximity(void * param)
@@ -64,14 +64,16 @@ void ArmProximity(bool arm)
 
 void ToggleArmed(const char *event, const char *data)
 {
-    digitalWrite(B0, HIGH);
     if(strcmp(data, "ARM") == 0)
     {
         ArmMotion(true);
+        securityLevel = MOTION;
     }
     else
     {
         ArmMotion(false);
+        ArmProximity(false);
+        securityLevel = DISARMED;
     }
 }
 
@@ -134,17 +136,20 @@ void setup() {
 }
 
 void loop () {
-    if(spaghetTouched)
+    if(motionDetected)
     {
       Particle.publish("MotionTracking", "Motion Detected", 60, PRIVATE);
-      spaghetTouched = false;
+      motionDetected = false;
     }
     
     if(measureProximity)
     {
+        digitalWrite(B0, HIGH);
         char publishMessage[30] = {0};
         snprintf(publishMessage, 30, "%d", centimetres);
-        Particle.publish("MotionTracking", publishMessage, 60, PRIVATE);
+        Particle.publish("ProximitySensing", publishMessage, 60, PRIVATE);
     }
+    delay(100);
+    digitalWrite(B0, LOW);
     delay(100);
 }
